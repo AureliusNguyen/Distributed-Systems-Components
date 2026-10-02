@@ -58,7 +58,7 @@ def scaling(res, machine):
     ax.set_axisbelow(True)
     ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0, 0.98), labelcolor=INK2)
     title(ax, "Shared counter across processes", "Higher is better. Every run counted exactly.")
-    note(fig, f"{machine}. Throughput flattens past 2 processes because the machine has 2 vCPUs.")
+    note(fig, f"{machine}. All processes update the same single counter.")
     fig.tight_layout(rect=(0, 0.04, 1, 1))
     fig.savefig(os.path.join(OUT, "throughput_vs_lock.png"), dpi=160)
     plt.close(fig)
@@ -95,7 +95,7 @@ def latency(res, machine):
     ax.spines["left"].set_visible(False)
     title(ax, "One atomic increment: shared memory vs the network",
           "Median time per fetch_add from a Python client (log scale, lower is better).")
-    note(fig, f"{machine}. Network numbers depend on the OS network stack (WSL2 loopback is slow).")
+    note(fig, f"{machine}. Client and servers on the same machine (localhost).")
     fig.tight_layout(rect=(0, 0.04, 1, 1))
     fig.savefig(os.path.join(OUT, "latency_vs_network.png"), dpi=160)
     plt.close(fig)
@@ -104,7 +104,8 @@ def latency(res, machine):
 def main():
     res = json.load(open(sys.argv[1]))
     m = res["machine"]
-    machine = f"{m['cpu_model'].replace('12th Gen Intel(R) Core(TM) ', '')}, {m['logical_cpus']} vCPUs, Python {m['python']}"
+    cpu = m["cpu_model"].replace("12th Gen Intel(R) Core(TM) ", "").replace(" 16-Core Processor", "")
+    machine = f"{cpu}, {m['logical_cpus']} threads, Python {m['python']}, Linux"
     os.makedirs(OUT, exist_ok=True)
     scaling(res, machine)
     latency(res, machine)

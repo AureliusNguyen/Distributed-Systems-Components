@@ -1,0 +1,451 @@
+{
+  "machine": {
+    "host": "Slade201289-3",
+    "cpu_model": "AMD Ryzen 9 7950X 16-Core Processor",
+    "logical_cpus": 32,
+    "kernel": "6.8.0-111-generic",
+    "python": "3.10.12",
+    "gil_enabled": true,
+    "date": "2026-10-02 16:42:59",
+    "timer_overhead_ns": 30.0
+  },
+  "quick": false,
+  "sync": [
+    {
+      "kind": "atomic",
+      "procs": 1,
+      "ops_per_run": 100000,
+      "throughput_ops_s": 24028294.502866186,
+      "cpu_ns_per_op": 41.38000000000003,
+      "correct": true,
+      "n": 20000,
+      "mean_ns": 59.02585,
+      "p50_ns": 60,
+      "p95_ns": 70,
+      "p99_ns": 70,
+      "max_ns": 13740
+    },
+    {
+      "kind": "atomic",
+      "procs": 2,
+      "ops_per_run": 200000,
+      "throughput_ops_s": 23427050.043396283,
+      "cpu_ns_per_op": 81.64999999999999,
+      "correct": true,
+      "n": 40000,
+      "mean_ns": 68.576875,
+      "p50_ns": 70,
+      "p95_ns": 80,
+      "p99_ns": 90,
+      "max_ns": 4840
+    },
+    {
+      "kind": "atomic",
+      "procs": 4,
+      "ops_per_run": 400000,
+      "throughput_ops_s": 40985132.599126086,
+      "cpu_ns_per_op": 95.52,
+      "correct": true,
+      "n": 80000,
+      "mean_ns": 143.3158375,
+      "p50_ns": 130,
+      "p95_ns": 340,
+      "p99_ns": 420,
+      "max_ns": 3840
+    },
+    {
+      "kind": "atomic",
+      "procs": 8,
+      "ops_per_run": 800000,
+      "throughput_ops_s": 40699661.37055329,
+      "cpu_ns_per_op": 184.37625,
+      "correct": true,
+      "n": 160000,
+      "mean_ns": 147.1898125,
+      "p50_ns": 130,
+      "p95_ns": 340,
+      "p99_ns": 430,
+      "max_ns": 8610
+    },
+    {
+      "kind": "atomic",
+      "procs": 16,
+      "ops_per_run": 1600000,
+      "throughput_ops_s": 38732181.84099746,
+      "cpu_ns_per_op": 375.335625,
+      "correct": true,
+      "n": 320000,
+      "mean_ns": 378.671215625,
+      "p50_ns": 380,
+      "p95_ns": 650,
+      "p99_ns": 690,
+      "max_ns": 46520
+    },
+    {
+      "kind": "mp.Value+lock",
+      "procs": 1,
+      "ops_per_run": 100000,
+      "throughput_ops_s": 2842879.3398952032,
+      "cpu_ns_per_op": 351.4199999999999,
+      "correct": true,
+      "n": 20000,
+      "mean_ns": 383.1505,
+      "p50_ns": 380,
+      "p95_ns": 400,
+      "p99_ns": 430,
+      "max_ns": 7940
+    },
+    {
+      "kind": "mp.Value+lock",
+      "procs": 2,
+      "ops_per_run": 200000,
+      "throughput_ops_s": 1297408.7791436026,
+      "cpu_ns_per_op": 1323.1899999999998,
+      "correct": true,
+      "n": 40000,
+      "mean_ns": 1352.414825,
+      "p50_ns": 1110,
+      "p95_ns": 2920,
+      "p99_ns": 5930,
+      "max_ns": 37240
+    },
+    {
+      "kind": "mp.Value+lock",
+      "procs": 4,
+      "ops_per_run": 400000,
+      "throughput_ops_s": 1618657.1789141973,
+      "cpu_ns_per_op": 1940.4124999999997,
+      "correct": true,
+      "n": 80000,
+      "mean_ns": 2516.3061625,
+      "p50_ns": 1330,
+      "p95_ns": 7410,
+      "p99_ns": 12330,
+      "max_ns": 74870
+    },
+    {
+      "kind": "mp.Value+lock",
+      "procs": 8,
+      "ops_per_run": 800000,
+      "throughput_ops_s": 1345007.1034922453,
+      "cpu_ns_per_op": 3860.6687500000007,
+      "correct": true,
+      "n": 160000,
+      "mean_ns": 6408.94756875,
+      "p50_ns": 3630,
+      "p95_ns": 18870,
+      "p99_ns": 29280,
+      "max_ns": 144310
+    },
+    {
+      "kind": "mp.Value+lock",
+      "procs": 16,
+      "ops_per_run": 1600000,
+      "throughput_ops_s": 1160909.9631880217,
+      "cpu_ns_per_op": 4700.02125,
+      "correct": true,
+      "n": 320000,
+      "mean_ns": 13893.280440625,
+      "p50_ns": 4710,
+      "p95_ns": 47819,
+      "p99_ns": 75540,
+      "max_ns": 227600
+    },
+    {
+      "kind": "shm+mp.Lock",
+      "procs": 1,
+      "ops_per_run": 100000,
+      "throughput_ops_s": 5020576.80192036,
+      "cpu_ns_per_op": 198.87999999999997,
+      "correct": true,
+      "n": 20000,
+      "mean_ns": 226.9814,
+      "p50_ns": 220,
+      "p95_ns": 250,
+      "p99_ns": 260,
+      "max_ns": 5960
+    },
+    {
+      "kind": "shm+mp.Lock",
+      "procs": 2,
+      "ops_per_run": 200000,
+      "throughput_ops_s": 2165425.934205641,
+      "cpu_ns_per_op": 919.8999999999999,
+      "correct": true,
+      "n": 40000,
+      "mean_ns": 324.308225,
+      "p50_ns": 250,
+      "p95_ns": 750,
+      "p99_ns": 1110,
+      "max_ns": 13720
+    },
+    {
+      "kind": "shm+mp.Lock",
+      "procs": 4,
+      "ops_per_run": 400000,
+      "throughput_ops_s": 2377501.9709336963,
+      "cpu_ns_per_op": 1389.6324999999997,
+      "correct": true,
+      "n": 80000,
+      "mean_ns": 2224.6152625,
+      "p50_ns": 1260,
+      "p95_ns": 7190,
+      "p99_ns": 12080,
+      "max_ns": 37100
+    },
+    {
+      "kind": "shm+mp.Lock",
+      "procs": 8,
+      "ops_per_run": 800000,
+      "throughput_ops_s": 1842152.6886852125,
+      "cpu_ns_per_op": 3404.84125,
+      "correct": true,
+      "n": 160000,
+      "mean_ns": 4332.88395625,
+      "p50_ns": 2510,
+      "p95_ns": 12980,
+      "p99_ns": 20370,
+      "max_ns": 86879
+    },
+    {
+      "kind": "shm+mp.Lock",
+      "procs": 16,
+      "ops_per_run": 1600000,
+      "throughput_ops_s": 1540550.7173943787,
+      "cpu_ns_per_op": 8721.851875,
+      "correct": true,
+      "n": 320000,
+      "mean_ns": 10514.102821875,
+      "p50_ns": 7060,
+      "p95_ns": 29430,
+      "p99_ns": 45140,
+      "max_ns": 2064995
+    }
+  ],
+  "rpc": {
+    "sequential": {
+      "shm atomic": {
+        "load": {
+          "n": 200000,
+          "mean_ns": 46.45603,
+          "p50_ns": 50,
+          "p95_ns": 60,
+          "p99_ns": 80,
+          "max_ns": 10730,
+          "ops_s": 21525730.890048075
+        },
+        "fetch_add": {
+          "n": 200000,
+          "mean_ns": 76.95431,
+          "p50_ns": 70,
+          "p95_ns": 120,
+          "p99_ns": 130,
+          "max_ns": 15200,
+          "ops_s": 12994723.752314847
+        },
+        "compare_exchange": {
+          "n": 200000,
+          "mean_ns": 104.06832,
+          "p50_ns": 100,
+          "p95_ns": 120,
+          "p99_ns": 180,
+          "max_ns": 10920,
+          "ops_s": 9609072.194112483
+        }
+      },
+      "gRPC (Rust server)": {
+        "load": {
+          "n": 10000,
+          "mean_ns": 90767.463,
+          "p50_ns": 88870,
+          "p95_ns": 107870,
+          "p99_ns": 129190,
+          "max_ns": 1999415,
+          "ops_s": 11017.16371647404
+        },
+        "fetch_add": {
+          "n": 10000,
+          "mean_ns": 86250.8441,
+          "p50_ns": 84680,
+          "p95_ns": 109290,
+          "p99_ns": 124279,
+          "max_ns": 323119,
+          "ops_s": 11594.089431062159
+        },
+        "compare_exchange": {
+          "n": 10000,
+          "mean_ns": 91143.7174,
+          "p50_ns": 90309,
+          "p95_ns": 110859,
+          "p99_ns": 124349,
+          "max_ns": 848518,
+          "ops_s": 10971.683276986902
+        }
+      },
+      "gRPC (Python server)": {
+        "load": {
+          "n": 10000,
+          "mean_ns": 147934.7964,
+          "p50_ns": 144370,
+          "p95_ns": 184189,
+          "p99_ns": 211979,
+          "max_ns": 556459,
+          "ops_s": 6759.734858431184
+        },
+        "fetch_add": {
+          "n": 10000,
+          "mean_ns": 151113.2199,
+          "p50_ns": 148190,
+          "p95_ns": 182689,
+          "p99_ns": 197479,
+          "max_ns": 1608776,
+          "ops_s": 6617.554709387805
+        },
+        "compare_exchange": {
+          "n": 10000,
+          "mean_ns": 162534.458,
+          "p50_ns": 159900,
+          "p95_ns": 199000,
+          "p99_ns": 220789,
+          "max_ns": 969098,
+          "ops_s": 6152.541512151226
+        }
+      },
+      "Redis TCP": {
+        "load": {
+          "n": 10000,
+          "mean_ns": 30629.6905,
+          "p50_ns": 29100,
+          "p95_ns": 37110,
+          "p99_ns": 47820,
+          "max_ns": 552218,
+          "ops_s": 32648.06087413779
+        },
+        "fetch_add": {
+          "n": 10000,
+          "mean_ns": 29239.6795,
+          "p50_ns": 28330,
+          "p95_ns": 32520,
+          "p99_ns": 36560,
+          "max_ns": 80440,
+          "ops_s": 34200.10126991987
+        },
+        "compare_exchange": {
+          "n": 10000,
+          "mean_ns": 40390.9133,
+          "p50_ns": 36230,
+          "p95_ns": 49990,
+          "p99_ns": 64180,
+          "max_ns": 240730,
+          "ops_s": 24758.043785060934
+        }
+      },
+      "Redis unix socket": {
+        "load": {
+          "n": 10000,
+          "mean_ns": 21883.193,
+          "p50_ns": 21290,
+          "p95_ns": 24150,
+          "p99_ns": 29650,
+          "max_ns": 76380,
+          "ops_s": 45697.170426637465
+        },
+        "fetch_add": {
+          "n": 10000,
+          "mean_ns": 21628.6515,
+          "p50_ns": 20980,
+          "p95_ns": 23269,
+          "p99_ns": 26970,
+          "max_ns": 69540,
+          "ops_s": 46234.96753831371
+        },
+        "compare_exchange": {
+          "n": 10000,
+          "mean_ns": 27869.719,
+          "p50_ns": 27400,
+          "p95_ns": 31150,
+          "p99_ns": 36600,
+          "max_ns": 68530,
+          "ops_s": 35881.23726687018
+        }
+      }
+    },
+    "concurrent": {
+      "shm atomic": {
+        "procs": 4,
+        "ops": 800000,
+        "ops_s": 24690467.40071784,
+        "cpu_ns_per_op": 161.70749999999998,
+        "server_cpu_share": 0.0
+      },
+      "gRPC (Rust server)": {
+        "procs": 4,
+        "ops": 20000,
+        "ops_s": 32960.621679969096,
+        "cpu_ns_per_op": 125119.1,
+        "server_cpu_share": 0.22778296838772022
+      },
+      "gRPC (Python server)": {
+        "procs": 4,
+        "ops": 20000,
+        "ops_s": 11644.546874870082,
+        "cpu_ns_per_op": 266565.05,
+        "server_cpu_share": 0.6039801541875051
+      },
+      "Redis TCP": {
+        "procs": 4,
+        "ops": 20000,
+        "ops_s": 122887.27683715188,
+        "cpu_ns_per_op": 32606.65,
+        "server_cpu_share": 0.23001442957188187
+      },
+      "Redis unix socket": {
+        "procs": 4,
+        "ops": 20000,
+        "ops_s": 153047.86056490405,
+        "cpu_ns_per_op": 23226.05,
+        "server_cpu_share": 0.1722204162998012
+      }
+    },
+    "arena": "brpc-1817604-cd45a7"
+  },
+  "crosslang": {
+    "shm": {
+      "languages_count": 4,
+      "per_process_ops": 1000000,
+      "expected": 4000000,
+      "final": 4000000,
+      "exact": true,
+      "wall_s": 0.07854588329792023,
+      "aggregate_ops_s": 50925647.94043017,
+      "languages": {
+        "Python": {
+          "elapsed_s": 0.07680067,
+          "ns_per_op": 76.80067
+        },
+        "C++": {
+          "elapsed_s": 0.040672989,
+          "ns_per_op": 40.672989
+        },
+        "Rust": {
+          "elapsed_s": 0.039504272,
+          "ns_per_op": 39.504272
+        },
+        "Go": {
+          "elapsed_s": 0.07273572,
+          "ns_per_op": 72.73572
+        }
+      }
+    },
+    "grpc": {
+      "per_process_ops": 20000,
+      "expected": 80000,
+      "final": 80000,
+      "exact": true,
+      "wall_s": 1.1153184920549393,
+      "aggregate_ops_s": 71728.3902041313
+    },
+    "speedup_shm_vs_grpc": 709.9789608480163
+  },
+  "runtime_s": 30.734522819519043
+}
