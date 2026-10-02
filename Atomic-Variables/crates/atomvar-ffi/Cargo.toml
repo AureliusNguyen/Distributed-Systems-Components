@@ -1,0 +1,22 @@
+[package]
+name = "atomvar-ffi"
+description = "C ABI for atomvar (libatomvar.so / libatomvar.a + include/atomvar.h)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "atomvar"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[[bin]]
+name = "atomvar-gen-header"
+path = "src/bin/gen_header.rs"
+
+[dependencies]
+atomvar-core.workspace = true
+paste = "1"
+
+[lints]
+workspace = true

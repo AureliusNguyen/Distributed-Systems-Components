@@ -1,0 +1,19 @@
+[package]
+name = "atomvar-py"
+description = "Python bindings for atomvar"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+name = "_atomvar"
+crate-type = ["cdylib"]
+
+[dependencies]
+atomvar-core.workspace = true
+pyo3 = { version = "0.29", features = ["extension-module"] }
+
+[lints]
+workspace = true

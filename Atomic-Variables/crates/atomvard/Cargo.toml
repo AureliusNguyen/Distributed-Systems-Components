@@ -1,0 +1,33 @@
+[package]
+name = "atomvard"
+description = "atomvar daemon: named atomic variables over gRPC, HTTP/JSON and MCP"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+atomvar-core.workspace = true
+axum = "0.8"
+clap = { version = "4", features = ["derive", "env"] }
+prost = "0.14"
+rmcp = { version = "3.4", features = ["server", "macros", "transport-io", "transport-streamable-http-server"] }
+schemars = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tonic = "0.14"
+tonic-prost = "0.14"
+
+[build-dependencies]
+tonic-prost-build = "0.14"
+
+[dev-dependencies]
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+
+[lints]
+workspace = true
+
+[[bench]]
+name = "latency"
+harness = false

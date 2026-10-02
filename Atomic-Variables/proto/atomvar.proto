@@ -1,0 +1,165 @@
+// atomvar service API: the single source of truth for the daemon's operations.
+// HTTP/JSON (openapi.yaml) and MCP mirror these messages.
+//
+// Semantics (see README "Guarantees"):
+// - Every value operation runs one hardware atomic operation on the shared
+//   memory word, so it is atomic with respect to native (in-process / shm)
+//   users of the same variable.
+// - A timeout or lost response means the outcome is UNKNOWN. Clients must not
+//   automatically retry mutations. `request_id` gives best-effort deduplication
+//   within ONE daemon instance while the entry is retained (default 10 min);
+//   restart, expiry, eviction or a different daemon can reapply the op.
+// - This is a single-host store, not consensus: no leases, fencing or failover.
+syntax = "proto3";
+
+package atomvar.v1;
+
+service AtomicService {
+  // Opens or creates a variable; the type is taken from `init`. Idempotent.
+  rpc Create(CreateRequest) returns (ValueResponse);
+  rpc Get(GetRequest) returns (ValueResponse);
+  rpc Set(SetRequest) returns (SetResponse);
+  rpc Swap(SwapRequest) returns (SwapResponse);
+  rpc CompareExchange(CompareExchangeRequest) returns (CompareExchangeResponse);
+  // fetch_add / fetch_sub / fetch_and / fetch_or / fetch_xor / fetch_max /
+  // fetch_min / fetch_nand, returning the value before and after.
+  rpc Fetch(FetchRequest) returns (FetchResponse);
+  rpc List(ListRequest) returns (ListResponse);
+}
+
+enum ValueType {
+  VALUE_TYPE_UNSPECIFIED = 0;
+  VALUE_TYPE_I64 = 1;
+  VALUE_TYPE_U64 = 2;
+  VALUE_TYPE_BOOL = 3;
+  VALUE_TYPE_F64 = 4;
+  VALUE_TYPE_U128 = 5;
+}
+
+// UNSPECIFIED means SEQ_CST, except for a compare-exchange failure ordering,
+// where it means "the strongest ordering valid for the success ordering".
+enum Ordering {
+  ORDERING_UNSPECIFIED = 0;
+  ORDERING_RELAXED = 1;
+  ORDERING_ACQUIRE = 2;
+  ORDERING_RELEASE = 3;
+  ORDERING_ACQ_REL = 4;
+  ORDERING_SEQ_CST = 5;
+}
+
+enum FetchOp {
+  FETCH_OP_UNSPECIFIED = 0;
+  FETCH_OP_ADD = 1;
+  FETCH_OP_SUB = 2;
+  FETCH_OP_AND = 3;
+  FETCH_OP_OR = 4;
+  FETCH_OP_XOR = 5;
+  FETCH_OP_MAX = 6;
+  FETCH_OP_MIN = 7;
+  FETCH_OP_NAND = 8;
+}
+
+message U128 {
+  fixed64 lo = 1;
+  fixed64 hi = 2;
+}
+
+// On input, `bits` (if set) is authoritative, so exact NaN payloads and -0.0
+// survive; otherwise `value` is used. On output both are set.
+message F64 {
+  double value = 1;
+  optional fixed64 bits = 2;
+}
+
+message Value {
+  oneof kind {
+    sint64 i64 = 1;
+    uint64 u64 = 2;
+    bool bool = 3;
+    F64 f64 = 4;
+    U128 u128 = 5;
+  }
+}
+
+message VarRef {
+  string arena = 1;
+  string name = 2;
+}
+
+message CreateRequest {
+  VarRef var = 1;
+  Value init = 2;
+  // 0 = adopt an existing arena's capacity, or create with the default.
+  uint32 capacity = 3;
+}
+
+message GetRequest {
+  VarRef var = 1;
+  Ordering ordering = 2;
+}
+
+message SetRequest {
+  VarRef var = 1;
+  Value value = 2;
+  Ordering ordering = 3;
+  string request_id = 4;
+}
+
+message SwapRequest {
+  VarRef var = 1;
+  Value value = 2;
+  Ordering ordering = 3;
+  string request_id = 4;
+}
+
+message CompareExchangeRequest {
+  VarRef var = 1;
+  Value expected = 2;
+  Value desired = 3;
+  Ordering success = 4;
+  Ordering failure = 5;
+  string request_id = 6;
+}
+
+message FetchRequest {
+  VarRef var = 1;
+  FetchOp op = 2;
+  Value operand = 3;
+  Ordering ordering = 4;
+  string request_id = 5;
+}
+
+message ValueResponse {
+  ValueType type = 1;
+  Value value = 2;
+}
+
+message SetResponse {}
+
+message SwapResponse {
+  Value previous = 1;
+}
+
+message CompareExchangeResponse {
+  bool exchanged = 1;
+  Value previous = 2;
+}
+
+message FetchResponse {
+  Value previous = 1;
+  Value current = 2;
+}
+
+message ListRequest {
+  string arena = 1;
+}
+
+message VarInfo {
+  string name = 1;
+  ValueType type = 2;
+  uint32 slot = 3;
+}
+
+message ListResponse {
+  repeated VarInfo variables = 1;
+}

@@ -1,0 +1,9 @@
+# Deployment contract (see README "Guarantees"): v1 targets Linux x86_64 CPUs
+# that have CMPXCHG16B (x86-64-v2 and newer). The compiler is allowed to use it
+# anywhere, so u128 atomics never fall back to a lock. atomvar-core refuses to
+# compile without this flag.
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-feature=+cmpxchg16b"]
+
+[build]
+rustdocflags = ["-C", "target-feature=+cmpxchg16b"]

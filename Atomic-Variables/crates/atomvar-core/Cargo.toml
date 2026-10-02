@@ -1,0 +1,32 @@
+[package]
+name = "atomvar-core"
+description = "Lock-free atomic variables, in-process or in named shared-memory arenas"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# Crash/delay hooks used only by the failure tests. Never enable in production.
+test-hooks = []
+
+[dependencies]
+libc.workspace = true
+memmap2.workspace = true
+portable-atomic.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+# Self dev-dependency: enables test-hooks for this crate's own tests and helper bin.
+atomvar-core = { path = ".", features = ["test-hooks"] }
+
+[target.'cfg(loom)'.dev-dependencies]
+loom = "0.7"
+
+[[bin]]
+name = "atomvar-testhelper"
+path = "src/bin/atomvar-testhelper.rs"
+required-features = ["test-hooks"]
+
+[lints]
+workspace = true

@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/atomvar-core",
+    "crates/atomvar-ffi",
+    "crates/atomvar-py",
+    "crates/atomvard",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
+
+[workspace.dependencies]
+atomvar-core = { path = "crates/atomvar-core" }
+libc = "0.2"
+memmap2 = "0.9"
+portable-atomic = { version = "1.15", default-features = false }
+thiserror = "2"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(loom)"] }
+
+[profile.release]
+debug = 1

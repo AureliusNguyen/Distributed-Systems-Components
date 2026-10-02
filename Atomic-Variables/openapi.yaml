@@ -1,0 +1,189 @@
+openapi: 3.1.0
+info:
+  title: atomvar
+  version: 0.1.0
+  description: |
+    Named lock-free atomic variables in shared memory on one host. Mirrors
+    proto/atomvar.proto. Every value operation is one atomic operation on the same
+    memory word that native (Python/C/Rust) users of the variable see.
+
+    Failure contract:
+    - A timeout or lost response means the outcome is UNKNOWN. Never auto-retry a
+      mutation. `request_id` (or the `Idempotency-Key` header) deduplicates retries
+      only within ONE daemon instance while the entry is retained (default 10
+      minutes); restart, expiry, eviction or a different daemon can reapply it.
+    - compare_exchange is not retry-safe under ABA (A -> B -> A). Use
+      irreversible claims or values that never repeat (e.g. a version counter).
+    - Single-host store, not consensus: no leases, fencing or failover.
+
+    Wire format: i64/u64/u128 are emitted as decimal strings (inputs may be JSON
+    integers or decimal strings; unsigned also accepts "0x" hex). f64 is emitted as
+    {"value": "<decimal|NaN|Infinity|-Infinity>", "bits": "0x<16 hex>"}; on input
+    "bits" is authoritative. Integers wrap on overflow.
+servers:
+  - url: http://127.0.0.1:7878
+security:
+  - {}
+  - bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Required when atomvard runs with --token / ATOMVAR_TOKEN.
+  parameters:
+    Arena:
+      name: arena
+      in: path
+      required: true
+      schema: { type: string, pattern: "^[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}$" }
+    Name:
+      name: name
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 64 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema: { type: string, maxLength: 200 }
+  schemas:
+    Type:
+      type: string
+      enum: [i64, u64, bool, f64, u128]
+    Ordering:
+      type: string
+      enum: [relaxed, acquire, release, acq_rel, seq_cst]
+      default: seq_cst
+    F64:
+      type: object
+      properties:
+        value: { type: string, description: 'Decimal, "NaN", "Infinity" or "-Infinity"' }
+        bits: { type: string, pattern: "^0x[0-9a-fA-F]{1,16}$" }
+    Value:
+      description: Integer as decimal string (or JSON integer on input), bool, or F64.
+      anyOf:
+        - { type: string }
+        - { type: number }
+        - { type: boolean }
+        - { $ref: "#/components/schemas/F64" }
+    OpBody:
+      type: object
+      additionalProperties: false
+      properties:
+        type: { $ref: "#/components/schemas/Type" }
+        value: { $ref: "#/components/schemas/Value" }
+        init: { $ref: "#/components/schemas/Value" }
+        expected: { $ref: "#/components/schemas/Value" }
+        desired: { $ref: "#/components/schemas/Value" }
+        ordering: { $ref: "#/components/schemas/Ordering" }
+        success: { $ref: "#/components/schemas/Ordering" }
+        failure:
+          $ref: "#/components/schemas/Ordering"
+          description: Defaults to the strongest ordering valid for `success`.
+        capacity: { type: integer, minimum: 1, description: "create only: arena capacity if it must be created" }
+        request_id: { type: string, maxLength: 200 }
+    ValueResult:
+      type: object
+      properties:
+        type: { $ref: "#/components/schemas/Type" }
+        value: { $ref: "#/components/schemas/Value" }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum: [INVALID_ARGUMENT, INVALID_ORDERING, INVALID_NAME, NOT_FOUND, TYPE_MISMATCH,
+                     ARENA_FULL, LAYOUT_MISMATCH, IDEMPOTENCY_CONFLICT, OUTCOME_UNKNOWN,
+                     RESOURCE_EXHAUSTED, UNAUTHENTICATED, INTERNAL]
+            message: { type: string }
+  responses:
+    Error:
+      description: |
+        400 INVALID_* | 401 UNAUTHENTICATED | 404 NOT_FOUND | 409 TYPE_MISMATCH,
+        LAYOUT_MISMATCH, IDEMPOTENCY_CONFLICT | 429 RESOURCE_EXHAUSTED (idempotency
+        table full) | 507 ARENA_FULL | 500 OUTCOME_UNKNOWN (may or may not have been
+        applied; do not blindly retry), INTERNAL
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+paths:
+  /v1/health:
+    get:
+      summary: Liveness check
+      responses:
+        "200": { description: OK }
+  /v1/arenas/{arena}/vars:
+    get:
+      summary: List variables in an arena
+      parameters: [{ $ref: "#/components/parameters/Arena" }]
+      responses:
+        "200":
+          description: Variables
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        type: { $ref: "#/components/schemas/Type" }
+                        slot: { type: integer }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/arenas/{arena}/vars/{name}:
+    get:
+      summary: Atomic load
+      parameters:
+        - { $ref: "#/components/parameters/Arena" }
+        - { $ref: "#/components/parameters/Name" }
+        - { name: ordering, in: query, schema: { $ref: "#/components/schemas/Ordering" } }
+      responses:
+        "200":
+          description: Current value
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValueResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/arenas/{arena}/vars/{name}/{op}:
+    post:
+      summary: Run an operation on a variable
+      description: |
+        op and its body fields / response:
+        - create {type, init?, capacity?} -> {type, value}. Opens or creates; init only on creation; request_id is ignored (idempotent by itself).
+        - get {ordering?} -> {type, value}
+        - set {value, ordering?, request_id?} -> {ok: true}
+        - swap {value, ordering?, request_id?} -> {previous}
+        - compare_exchange {expected, desired, success?, failure?, request_id?} -> {exchanged, previous}
+        - fetch_add | fetch_sub | fetch_and | fetch_or | fetch_xor | fetch_max | fetch_min | fetch_nand
+          {value, ordering?, request_id?} -> {previous, current}.
+          i64/u64: add sub and or xor max min; bool: and or xor nand; f64: add sub; u128: none.
+      parameters:
+        - { $ref: "#/components/parameters/Arena" }
+        - { $ref: "#/components/parameters/Name" }
+        - name: op
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [create, get, set, swap, compare_exchange, fetch_add, fetch_sub, fetch_and,
+                   fetch_or, fetch_xor, fetch_max, fetch_min, fetch_nand]
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OpBody" }
+      responses:
+        "200":
+          description: Operation result (shape depends on op)
+          content:
+            application/json:
+              schema: { type: object }
+        default: { $ref: "#/components/responses/Error" }

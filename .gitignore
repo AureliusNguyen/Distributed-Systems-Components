@@ -1,0 +1,17 @@
+# Rust
+target/
+**/*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+*.so
+
+# Claude Code auto-evolving session state (PEEK)
+.claude/peek-map.json
+.claude/peek-map.json.tmp
+.claude/.peek-sessions
+.claude/.peek.lock
